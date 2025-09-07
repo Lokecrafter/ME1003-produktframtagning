@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-L1 = 100;
+L1 = 300;
 L3 = 668;
 L4 = 1258;
 axle_length = 100;
@@ -11,8 +11,19 @@ geometry = SteeringGeometry(L1, L3, L4, axle_length);
 
 
 
+% Calculate and display the maximum angle that the right spindle can achive without the linkage locking
+alpha = atan(L3 / (2 * L4));
+L2 = L3 - 2 * L1 * sin(alpha);
+max_angle_b = pi + acos((L1^2 + L3^2 - (L1 + L2)^2) / (2 * L1 * L3));
+max_right_steering_angle = max_angle_b + alpha - 3*pi/2;
+disp(["Max right steering angle (deg): ", rad2deg(max_right_steering_angle)])
+
+
+
+
+
 % Drawing some steering positions
-angles = [deg2rad(36.742), deg2rad(15), 0];
+angles = [deg2rad(29.3581), deg2rad(15), 0];
 for i = 1:length(angles)
     right_steering_angle = angles(i);
     geometry = geometry.calculate(right_steering_angle);
@@ -27,7 +38,7 @@ end
 
 
 % Plotting radius difference vs angle
-angles = linspace(deg2rad(37), deg2rad(38), 500);
+angles = linspace(deg2rad(28), deg2rad(30), 500);
 differences = zeros(size(angles));
 for i = 1:length(angles)
     right_steering_angle = angles(i);
@@ -55,8 +66,8 @@ grid on;
 
 
 % Secant method to find angle for zero radius difference
-x0 = deg2rad(33);
-x1 = deg2rad(34);
+x0 = deg2rad(28);
+x1 = deg2rad(30);
 geometry = geometry.calculate(x0);
 diff0 = geometry.get_radius_difference();
 
@@ -86,7 +97,3 @@ hold on; plot(rad2deg(x1), 0, 'ro', 'MarkerSize', 10);
 
 
 
-% Calculate and display the maximum angle that the right spindle can achive without the linkage locking
-max_angle_b = pi + acos((L1^2 + L3^2 - (L1 + L2)^2) / (2 * L1 * L3));
-max_right_steering_angle = max_angle_b + alpha - 3*pi/2;
-disp(["Max right steering angle (deg): ", rad2deg(max_right_steering_angle)])
