@@ -2,10 +2,15 @@ clear all
 close all
 clc
 
+% GIF-inställningar
+skapa_gif = true; % Sätt till true för att spara GIF
+gif_filnamn = 'kurvradie_animation.gif'; % Filnamn på GIF
+gif_delay = 0.07; % Sekunder per bildruta (justera för hastighet)
+
 % Inställningar
 visa_animation = true; % Sätt till true för animation, false för en vinkel
 vald_vinkel = deg2rad(30); % Vinkel i radianer om du inte vill animera
-animation_duration = 20; % Sekunder
+animation_duration = 5; % Sekunder
 
 L1 = 200;
 L3 = 668;
@@ -18,11 +23,11 @@ L2 = L3 - 2 .* L1 .* sin(alpha);
 
 
 if visa_animation
-    % vinklar = linspace(deg2rad(36.742), deg2rad(-36.742), 100);
-    vinklar = linspace(deg2rad(36.742), deg2rad(15), 100);
+    vinklar = linspace(deg2rad(36.742), deg2rad(15), 30);
     fig = figure;
     k = 1;
     dir = 1; % 1 = framåt, -1 = bakåt
+    gif_skapad = false;
     while ishandle(fig)
         clf;
         right_steering_angle = vinklar(k);
@@ -43,7 +48,6 @@ if visa_animation
 
         leftAxle = pointA + 30 * [cos(angleD - alpha - pi/2); sin(angleD - alpha - pi/2)];
         rightAxle = pointB + 30 * [cos(angleB + alpha + pi/2); sin(angleB + alpha + pi/2)];
-
 
         right_turning_radius = L4 / tan(atan2(-(rightAxle(2) - pointB(2)), -(rightAxle(1) - pointB(1)))) - L3 / 2;
         left_turning_radius = L4 / tan(atan2(leftAxle(2) - pointA(2), leftAxle(1) - pointA(1))) + L3 / 2;
@@ -80,10 +84,24 @@ if visa_animation
 
         axis equal
         grid on
-        xlim([-10000, 1.1 * (L3 + L1)])
+        xlim([-5000, 1.1 * (L3 + L1)])
         ylim([-1.1 * (L1 + L4), 1.1 * (L1)])
         title(['right\_steering\_angle = ', num2str(rad2deg(right_steering_angle), '%.1f'), '°'])
         drawnow
+
+        % Spara till GIF om aktiverat
+        if skapa_gif
+            frame = getframe(fig);
+            img = frame2im(frame);
+            [A,map] = rgb2ind(img,256);
+            if ~gif_skapad
+                imwrite(A,map,gif_filnamn,'gif','LoopCount',Inf,'DelayTime',gif_delay);
+                gif_skapad = true;
+            else
+                imwrite(A,map,gif_filnamn,'gif','WriteMode','append','DelayTime',gif_delay);
+            end
+        end
+
         pause(animation_duration / length(vinklar))
 
         k = k + dir;
