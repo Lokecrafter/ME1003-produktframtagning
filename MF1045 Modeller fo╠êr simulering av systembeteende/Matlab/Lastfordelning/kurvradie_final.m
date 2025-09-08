@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-L1 = 300;
+L1 = 200;
 L3 = 668;
 L4 = 1258;
 axle_length = 100;
@@ -38,17 +38,20 @@ end
 
 
 % Plotting radius difference vs angle
-angles = linspace(deg2rad(28), deg2rad(30), 500);
+angles = linspace(deg2rad(35), deg2rad(15), 500);
 differences = zeros(size(angles));
+radiuses = zeros(size(angles));
 for i = 1:length(angles)
     right_steering_angle = angles(i);
     geometry = geometry.calculate(right_steering_angle);
     differences(i) = geometry.get_radius_difference();
+    radiuses(i) = geometry.get_radius()/1000;
 end
 figure;
-plot(rad2deg(angles), differences/1000, 'LineWidth', 2);
-xlabel('Right Steering Angle (degrees)');
+plot(radiuses, differences/1000, 'LineWidth', 2);
+xlabel('Right Turing Radius (m)');
 ylabel('Radius Difference (m)');
+title('Radius Difference vs Right Turning Radius');
 grid on;
 
 
@@ -66,8 +69,8 @@ grid on;
 
 
 % Secant method to find angle for zero radius difference
-x0 = deg2rad(28);
-x1 = deg2rad(30);
+x0 = deg2rad(15);
+x1 = deg2rad(35);
 geometry = geometry.calculate(x0);
 diff0 = geometry.get_radius_difference();
 
@@ -93,7 +96,7 @@ geometry = geometry.calculate(x1);
 radius = geometry.get_radius();
 
 disp(['Zero radius difference at right steering angle: ', num2str(rad2deg(x1), '%.4f'), '° with radius: ', num2str(radius/1000, '%.6f'), ' m']);
-hold on; plot(rad2deg(x1), 0, 'ro', 'MarkerSize', 10);
+hold on; plot(radius/1000, 0, 'ro', 'MarkerSize', 10);
 
 
 
