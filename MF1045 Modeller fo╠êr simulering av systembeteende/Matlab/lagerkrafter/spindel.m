@@ -5,64 +5,43 @@ clear
 
 % Given forces on wheel
 F = 300;
-K = 100;
+K = 1000;
 
-% Geometry
-R = 30 * 10^(-2); % Wheel radius
-dist_between_bearings = 20 * 10^(-2); % Distance between bearings
+Rwheel = 0.3;
+a=0.300;
+b=0.500;
+h=0.250;
 
 
-
-% Ascii art of geometry
-
-%      F
-%      \/
-% |         |
-% |         |
-% |         |
-% |         |______________________
-% |         
-% |          ______________________
-% |         |             /\      /\
-% |         |             L1      L2
-% |         |
-% |         |
+L1 = F/2 - Rwheel*K/b;
+L2 = F/2 + Rwheel*K/b;
+G1 = (a*L1 + (a+b)*L2)/h - K/2;
+G2 = (a*L1 + (a+b)*L2)/h + K/2;
 
 
 
 
-%Beräkna lagerkrafter vid given kraft F
+k_point = a+b;
+if K < 0
+    k_point = a;
+end
 
-L1 = F - K/dist_between_bearings;
-L2 = K/dist_between_bearings;
-
-
-
-
-spindle_diameters = [
-    0,   100,  100.1,  400,  400.1, 1000;
-    200, 200, 150, 150, 100, 100
-] * 10^(-3); % Enter diameters in millimeters
-spindle_turn_axis = [
-    50, 50;
-    max(spindle_diameters(2, :)) * 1000, -max(spindle_diameters(2, :)) * 1000
-] * 10^(-3);
+points = [
+    0, 0, 0, a, a+b, k_point;
+    h/2, h/2, -h/2, 0, 0, 0
+];
+forces = [
+    0, G1, -G2, 0, 0, K;
+    -F, 0, 0, L1, L2, 0;
+];
 
 
-
-subplot(1, 2, 1);
-axis equal;
-plot(spindle_diameters(1, :), spindle_diameters(2, :), '-ob', 'LineWidth', 2);
+quiver(points(1,:), points(2,:), forces(1,:), forces(2,:))
 hold on;
-plot(spindle_diameters(1, :), -spindle_diameters(2, :), '-ob', 'LineWidth', 2);
+plot([0, 1], [0, 0], '--')
 hold on;
-plot(spindle_turn_axis(1, :), spindle_turn_axis(2, :), '--', 'LineWidth', 2);
-
-
-interp1(spindle_diameters(1, :), spindle_diameters(2, :), 1*10^(-3))
-
-
-
-subplot(1, 2, 2);
-axis equal;
-plot([0, 1, 1, 0], [1, 1, 0, 0], 'o-', 'LineWidth', 2);
+plot([0, a/2, a/2, 1], [h, h, h/2, h/2], '-o')
+hold on;
+plot([0, a/2, a/2, 1], -[h, h, h/2, h/2], '-o')
+hold on;
+plot(points(1,:), points(2,:), 'ob')
